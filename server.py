@@ -3,6 +3,20 @@ from pulp import LpProblem, LpMaximize, LpVariable, lpSum, PULP_CBC_CMD, value
 
 app = Flask(__name__)
 
+@app.route("/optimize", methods=["POST"])
+def optimize():
+    try:
+        data = request.get_json()
+        orders = data["orders"]
+        bom = data["bom"]
+        stock = data["stock"]
+
+        # Apelăm funcția de optimizare
+        result = optimize_car_production(orders, bom, stock)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
 def optimize_car_production(orders, bom, stock):
     problem = LpProblem("Maximizare_Comenzi", LpMaximize)
     products = list(orders.keys())
@@ -17,22 +31,7 @@ def optimize_car_production(orders, bom, stock):
         problem += product_vars[p] <= orders[p], f"Comanda_{p}"
 
     problem.solve(PULP_CBC_CMD(msg=0))
-
     return {p: int(value(product_vars[p])) for p in products}
 
-@app.route("/") 
-def index(): 
-    return "Homepage of GeeksForGeeks"
-
-
-@app.route("/optimize", methods=["POST"])
-def optimize():
-    data = request.json
-    orders = data["orders"]
-    bom = data["bom"]
-    stock = data["stock"]
-    result = optimize_car_production(orders, bom, stock)
-    return jsonify(result)
-
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run()
