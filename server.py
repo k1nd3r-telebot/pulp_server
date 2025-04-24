@@ -20,6 +20,11 @@ def optimize_car_production(orders, bom, stock):
 
     return {p: int(value(product_vars[p])) for p in products}
 
+@app.route("/") 
+def index(): 
+    return "Homepage of GeeksForGeeks"
+
+
 @app.route("/optimize", methods=["POST"])
 def optimize():
     data = request.json
